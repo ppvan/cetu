@@ -1,0 +1,11 @@
+# Simple URL Shortener
+
+## TODOS
+- [ ] Centralize logging
+- [ ] Base62 convertion
+- [ ] Redirect
+- [ ] Database
+- [ ] Form submit
+- [ ] UI
+- [ ] Embeded
+- [ ] Docker, self-host something
