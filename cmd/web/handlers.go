@@ -3,14 +3,25 @@ package main
 import (
 	"errors"
 	"net/http"
+	"text/template"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/ppvan/cetu/internal/models"
 )
 
-func ShortenURL(w http.ResponseWriter, r *http.Request) {
-	numbers := 100000000001
-	w.Write([]byte("Shorten URL: " + Base62Encode(uint64(numbers))))
+func (app *application) Index(w http.ResponseWriter, r *http.Request) {
+
+	files := []string{
+		"./ui/html/pages/index.html",
+		"./ui/html/layouts/base.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+	}
+
+	ts.ExecuteTemplate(w, "base", nil)
 }
 
 func (app *application) ExpandURL(w http.ResponseWriter, r *http.Request) {
