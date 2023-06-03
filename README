@@ -1,9 +1,9 @@
 # Simple URL Shortener
 
 ## TODOS
-- [ ] Centralize logging
-- [ ] Base62 convertion
-- [ ] Redirect
+- [x] Centralize logging
+- [x] Base62 convertion
+- [x] Redirect
 - [ ] Database
 - [ ] Form submit
 - [ ] UI

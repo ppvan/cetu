@@ -15,8 +15,20 @@ type URLModel struct {
 	DB *sql.DB
 }
 
-func (m *URLModel) Insert(shortURL, original string) (uint64, error) {
-	return 0, nil
+func (m *URLModel) Insert(shortURL, original string) (int64, error) {
+	stmt := `INSERT INTO urls (short_url, original) VALUES (?, ?)`
+
+	result, err := m.DB.Exec(stmt, shortURL, original)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 func (m *URLModel) Get(shortURL string) (*URL, error) {
