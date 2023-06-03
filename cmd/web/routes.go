@@ -7,8 +7,12 @@ import (
 )
 
 func (app *application) routes() http.Handler {
+
 	router := httprouter.New()
-	router.HandlerFunc(http.MethodGet, "/:uuid", ExpandURL)
+
+	router.NotFound = http.HandlerFunc(app.notFound)
+
+	router.HandlerFunc(http.MethodGet, "/app/:shorten", app.ExpandURL)
 	router.HandlerFunc(http.MethodGet, "/", ShortenURL)
 
 	return router

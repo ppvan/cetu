@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+	"net/http"
+	"runtime/debug"
+)
+
 var BASE_CHARS = []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
 var BASE uint64 = uint64(len(BASE_CHARS))
 var BASE_COUNTER uint64 = 100_000_000_000
@@ -29,4 +35,22 @@ func reverseBytes(bytes []byte) []byte {
 	}
 
 	return bytes
+}
+
+func (app *application) serverError(w http.ResponseWriter, err error) {
+	// Get the stack trace for the error and output it to the error log.
+	// Pop 2 step to log the caller of the function that called serverError.
+	trace := fmt.Sprintf("%s\n%s\n", err.Error(), debug.Stack())
+	app.errorLog.Output(2, trace)
+
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("Internal Server Error"))
+}
+
+func (app *application) clientError(w http.ResponseWriter, status int) {
+	http.Error(w, http.StatusText(status), status)
+}
+
+func (app *application) notFound(w http.ResponseWriter, r *http.Request) {
+	app.clientError(w, http.StatusNotFound)
 }

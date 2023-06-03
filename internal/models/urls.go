@@ -1,0 +1,35 @@
+package models
+
+import (
+	"database/sql"
+	"errors"
+)
+
+type URL struct {
+	ID       uint64
+	ShortURL string
+	Original string
+}
+
+type URLModel struct {
+	DB *sql.DB
+}
+
+func (m *URLModel) Insert(shortURL, original string) (uint64, error) {
+	return 0, nil
+}
+
+func (m *URLModel) Get(shortURL string) (*URL, error) {
+	stmt := `SELECT id, short_url, original FROM urls WHERE short_url = ?`
+	row := m.DB.QueryRow(stmt, shortURL)
+
+	var url URL
+	err := row.Scan(&url.ID, &url.ShortURL, &url.Original)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		}
+	}
+
+	return &url, nil
+}
