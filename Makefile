@@ -1,9 +1,9 @@
 build:
-	./ui/tailwindcss -i ./ui/main.css -o ./ui/main.min.css --minify
+	./ui/tailwindcss -i ui/static/css/main.css -o ui/static/css/main.min.css --minify
 	go build ./cmd/...
 
 run:
 	go run ./cmd/...
 
 watch:
-	./ui/tailwindcss -i ./ui/main.css -o ./ui/main.min.css --watch
+	./ui/tailwindcss -i ui/static/css/main.css -o ui/static/css/main.min.css --watch

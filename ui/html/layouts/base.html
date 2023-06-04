@@ -1,6 +1,6 @@
 {{ define "base" }}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 
 <head>
     <meta charset="UTF-8">
@@ -13,19 +13,15 @@
     <title>Cetu</title>
 </head>
 
-<body>
+<body class="w-full h-full flex flex-col bg-no-repeat bg-cover bg-[url(/static/img/background.jpg)]">
     <header>
-        <link rel="stylesheet" href="/static/css/main.css">
+        <link rel="stylesheet" href="/static/css/main.min.css">
     </header>
-    <main>
+    <main class="w-full grow flex justify-center">
         {{ template "content" . }}
     </main>
 
-    <footer>
-        <p>Footer</p>
-    </footer>
-
-    <script src="/static/css/main.js"></script>
+    <script src="/static/js/main.js"></script>
 </body>
 
 </html>

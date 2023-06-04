@@ -4,7 +4,7 @@
 - [x] Centralize logging
 - [x] Base62 convertion
 - [x] Redirect
-- [ ] Database
+- [x] Database
 - [ ] Form submit
 - [ ] UI
 - [ ] Embeded
