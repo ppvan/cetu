@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ppvan/cetu/internal/models"
@@ -41,12 +42,15 @@ func main() {
 	}
 
 	server := http.Server{
-		Handler: app.routes(),
-		Addr:    *addr,
+		Handler:      app.routes(),
+		Addr:         *addr,
+		IdleTimeout:  5 * time.Minute,
+		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  5 * time.Second,
 	}
 
 	infoLog.Printf("Starting server on %s", server.Addr)
-	err = server.ListenAndServe()
+	err = server.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	if err != nil {
 		errorLog.Fatal(err)
 	}
