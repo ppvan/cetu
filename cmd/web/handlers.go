@@ -26,7 +26,7 @@ func (app *application) Index(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) ExpandURL(w http.ResponseWriter, r *http.Request) {
 	params := httprouter.ParamsFromContext(r.Context())
-	shortenURL := params.ByName("shorten")
+	shortenURL := params.ByName("url")
 
 	url, err := app.urlModel.Get(shortenURL)
 	if err != nil {

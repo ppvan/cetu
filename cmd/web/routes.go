@@ -16,7 +16,7 @@ func (app *application) routes() http.Handler {
 
 	staticFiles := http.FileServer(http.Dir("./ui/static/"))
 
-	router.HandlerFunc(http.MethodGet, "/app/:shorten", app.ExpandURL)
+	router.HandlerFunc(http.MethodGet, "/z/:url", app.ExpandURL)
 	router.HandlerFunc(http.MethodGet, "/", app.Index)
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", staticFiles))
 
