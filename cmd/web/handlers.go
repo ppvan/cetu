@@ -24,6 +24,32 @@ func (app *application) Index(w http.ResponseWriter, r *http.Request) {
 	ts.ExecuteTemplate(w, "base", nil)
 }
 
+func (app *application) ShortenURL(w http.ResponseWriter, r *http.Request) {
+
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	originalUrl := r.PostForm.Get("url")
+
+	url, err := app.GenerateShortURL()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	_, err = app.urlModel.Insert(url, originalUrl)
+
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+}
+
 func (app *application) ExpandURL(w http.ResponseWriter, r *http.Request) {
 	params := httprouter.ParamsFromContext(r.Context())
 	shortenURL := params.ByName("url")

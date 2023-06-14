@@ -31,6 +31,19 @@ func (m *URLModel) Insert(shortURL, original string) (int64, error) {
 	return id, nil
 }
 
+func (m *URLModel) GetLastInsertId() (int64, error) {
+	stmt := `SELECT MAX(id) FROM urls;`
+	row := m.DB.QueryRow(stmt)
+
+	var lastID int64
+	err := row.Scan(&lastID)
+	if err != nil {
+		return 0, err
+	}
+
+	return lastID, nil
+}
+
 func (m *URLModel) Get(shortURL string) (*URL, error) {
 	stmt := `SELECT id, short_url, original FROM urls WHERE short_url = ?`
 	row := m.DB.QueryRow(stmt, shortURL)

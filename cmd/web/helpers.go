@@ -6,15 +6,30 @@ import (
 	"runtime/debug"
 )
 
+// Generate a short URL from the last inserted ID
+// The ID is fetched from the database
+func (app *application) GenerateShortURL() (string, error) {
+
+	id, err := app.urlModel.GetLastInsertId()
+	if err != nil {
+		return "", err
+	}
+
+	slug := base62Encode(id)
+	// url := fmt.Sprintf("%s/%s", app.config.BaseURL(), slug)
+
+	return slug, nil
+}
+
 var BASE_CHARS = []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
-var BASE uint64 = uint64(len(BASE_CHARS))
-var BASE_COUNTER uint64 = 100_000_000_000
+var BASE int64 = int64(len(BASE_CHARS))
+var BASE_COUNTER int64 = 100_000_000_000
 var MAX_LENGTH = 7
 
-// Base62Encode encodes a number to a base62 string.
+// base62Encode encodes a number to a base62 string.
 // Param number: the number to encode.
 // Return: the base62 string.
-func Base62Encode(number uint64) (str string) {
+func base62Encode(number int64) (str string) {
 	result := make([]byte, MAX_LENGTH)
 	i := 0
 	number += BASE_COUNTER

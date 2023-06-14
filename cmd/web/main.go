@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -16,18 +16,22 @@ type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
 	urlModel *models.URLModel
+	config   *Config
 }
 
 func main() {
 
-	addr := flag.String("addr", ":8080", "HTTP network address")
-	dsn := flag.String("dsn", "cetu:cetu@/cetu?parseTime=true", "MySQL data source name")
-	flag.Parse()
+	// domain := flag.String("domain", "localhost", "Domain name")
+	// port := flag.String("port", "8080", "Port number")
+	// dsn := flag.String("dsn", "cetu:cetu@/cetu?parseTime=true", "MySQL data source name")
+	// flag.Parse()
+
+	config := ParseConfig()
 
 	infoLog := log.New(os.Stdout, "[INFO]\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "[ERROR]\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	db, err := openDB(*dsn)
+	db, err := openDB(config.DSN)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
@@ -39,11 +43,12 @@ func main() {
 		errorLog: errorLog,
 		infoLog:  infoLog,
 		urlModel: urlModel,
+		config:   &config,
 	}
 
 	server := http.Server{
 		Handler:      app.routes(),
-		Addr:         *addr,
+		Addr:         fmt.Sprintf("%s:%s", config.Domain, config.Port),
 		IdleTimeout:  5 * time.Minute,
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  5 * time.Second,
