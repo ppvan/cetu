@@ -20,12 +20,6 @@ type application struct {
 }
 
 func main() {
-
-	// domain := flag.String("domain", "localhost", "Domain name")
-	// port := flag.String("port", "8080", "Port number")
-	// dsn := flag.String("dsn", "cetu:cetu@/cetu?parseTime=true", "MySQL data source name")
-	// flag.Parse()
-
 	config := ParseConfig()
 
 	infoLog := log.New(os.Stdout, "[INFO]\t", log.Ldate|log.Ltime)

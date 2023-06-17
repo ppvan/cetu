@@ -11,7 +11,12 @@ type Config struct {
 	DSN    string
 }
 
-// ParseConfig parses the command line arguments and returns a Config struct.
+// ParseConfig parses application configuration from command line flags.
+// It returns a Config struct containing the parsed values.
+// Usage:
+//
+//	config := ParseConfig()
+//	fmt.Println(config.BaseURL())
 func ParseConfig() Config {
 	domain := flag.String("domain", "localhost", "Domain name")
 	port := flag.String("port", "8080", "Port number")
