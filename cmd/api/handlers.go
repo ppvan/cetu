@@ -26,7 +26,18 @@ func (app *application) healthCheck(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) createURLHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Write([]byte("Create URL"))
+	var input struct {
+		OriginalURL string `json:"originalUrl"`
+		Alias       string `json:"alias"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, envelope{"url": input}, nil)
 }
 
 func (app *application) showURLHandler(w http.ResponseWriter, r *http.Request) {

@@ -24,6 +24,10 @@ func (app *application) notFound(w http.ResponseWriter, r *http.Request) {
 	app.errorResponse(w, r, http.StatusNotFound, "Resource not found")
 }
 
+func (app *application) badRequest(w http.ResponseWriter, r *http.Request, err error) {
+	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+}
+
 func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) {
 	response := envelope{
 		"error": message,

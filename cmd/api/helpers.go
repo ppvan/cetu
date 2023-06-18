@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -26,6 +28,57 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	w.Write(js)
+
+	return nil
+}
+
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+
+	max_bytes := 1_048_576 // 1MB
+	r.Body = http.MaxBytesReader(w, r.Body, int64(max_bytes))
+
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+
+	err := dec.Decode(dst)
+	if err != nil {
+
+		var syntaxError *json.SyntaxError
+		var unmarshalTypeError *json.UnmarshalTypeError
+		var invalidUnmarshalError *json.InvalidUnmarshalError
+
+		switch {
+		// JSON syntax error
+		case errors.As(err, &syntaxError):
+			return errors.New("body contains badly-formed JSON (at character " + strconv.Itoa(int(syntaxError.Offset)) + ")")
+
+		// JSON type error. For example, when the JSON value is a string but the target is an int
+		case errors.As(err, &unmarshalTypeError):
+			if unmarshalTypeError.Field != "" {
+				return fmt.Errorf("body contains incorrect JSON type for field %q", unmarshalTypeError.Field)
+			}
+			return fmt.Errorf("body contains incorrect JSON type (at character %d)", unmarshalTypeError.Offset)
+
+		// Body is empty
+		case err.Error() == "EOF":
+			return errors.New("request body must not be empty")
+
+		// This means the dst is null -> programmer errors -> panic
+		case errors.As(err, &invalidUnmarshalError):
+			panic(err)
+
+		// Limit the size of the request body to 1MB
+		case err.Error() == "http: request body too large":
+			return errors.New("request body must not be larger than 1MB")
+
+		// Unknown field in JSON
+		case strings.HasPrefix(err.Error(), "json: unknown field "):
+			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
+			return fmt.Errorf("body contains unknown key %s", fieldName)
+		default:
+			return err
+		}
+	}
 
 	return nil
 }
@@ -55,35 +108,4 @@ func (app *application) GenerateShortURL() (string, error) {
 	// url := fmt.Sprintf("%s/%s", app.config.BaseURL(), slug)
 
 	return slug, nil
-}
-
-var BASE_CHARS = []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
-var BASE int64 = int64(len(BASE_CHARS))
-var BASE_COUNTER int64 = 100_000_000_000
-var MAX_LENGTH = 7
-
-// base62Encode encodes a number to a base62 string.
-// Param number: the number to encode.
-// Return: the base62 string.
-func base62Encode(number int64) (str string) {
-	result := make([]byte, MAX_LENGTH)
-	i := 0
-	number += BASE_COUNTER
-	for number > 0 {
-		result[i] = BASE_CHARS[number%BASE]
-		number = number / BASE
-		i++
-	}
-	return string(reverseBytes(result[:i]))
-}
-
-// ReverseBytes reverses a byte array.
-// It also change the original array.
-// Examples: []byte("Hello, World!") -> []byte("!dlroW ,olleH")
-func reverseBytes(bytes []byte) []byte {
-	for i, j := 0, len(bytes)-1; i < j; i, j = i+1, j-1 {
-		bytes[i], bytes[j] = bytes[j], bytes[i]
-	}
-
-	return bytes
 }
