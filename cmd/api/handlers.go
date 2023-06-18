@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ppvan/cetu/internal/models"
+	"github.com/ppvan/cetu/internal/validators"
 )
 
 func (app *application) healthCheck(w http.ResponseWriter, r *http.Request) {
@@ -28,12 +29,22 @@ func (app *application) createURLHandler(w http.ResponseWriter, r *http.Request)
 
 	var input struct {
 		OriginalURL string `json:"originalUrl"`
-		Alias       string `json:"alias"`
+		CustomAlias string `json:"customAlias"`
 	}
 
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequest(w, r, err)
+		return
+	}
+
+	v := validators.New()
+	v.Check(input.OriginalURL != "", "originalUrl", "must be provided")
+	v.Check(v.IsBlank(input.OriginalURL), "originalUrl", "must not be blank")
+	v.Check(v.IsURL(input.OriginalURL), "originalUrl", "must be a valid URL")
+
+	if !v.Valid() {
+		app.failedValidation(w, r, v.Errors)
 		return
 	}
 
