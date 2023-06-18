@@ -3,15 +3,15 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
-	"runtime/debug"
 	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
+type envelope map[string]interface{}
+
+func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 
 	js, err := json.Marshal(data)
 	if err != nil {
@@ -86,22 +86,4 @@ func reverseBytes(bytes []byte) []byte {
 	}
 
 	return bytes
-}
-
-func (app *application) serverError(w http.ResponseWriter, err error) {
-	// Get the stack trace for the error and output it to the error log.
-	// Pop 2 step to log the caller of the function that called serverError.
-	trace := fmt.Sprintf("%s\n%s\n", err.Error(), debug.Stack())
-	app.errorLog.Output(2, trace)
-
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte("Internal Server Error"))
-}
-
-func (app *application) clientError(w http.ResponseWriter, status int) {
-	http.Error(w, http.StatusText(status), status)
-}
-
-func (app *application) notFound(w http.ResponseWriter, r *http.Request) {
-	app.clientError(w, http.StatusNotFound)
 }

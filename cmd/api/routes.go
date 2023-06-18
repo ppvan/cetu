@@ -11,6 +11,7 @@ func (app *application) routes() http.Handler {
 
 	router := httprouter.New()
 	router.NotFound = http.HandlerFunc(app.notFound)
+	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowed)
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 

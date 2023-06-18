@@ -1,22 +1,26 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/ppvan/cetu/internal/models"
 )
 
 func (app *application) healthCheck(w http.ResponseWriter, r *http.Request) {
 
-	health := map[string]any{
-		"status":      "available",
-		"environment": app.config.env,
-		"version":     version,
+	health := envelope{
+		"status": "available",
+		"system": map[string]any{
+			"environment": app.config.env,
+			"version":     version,
+		},
 	}
 
 	err := app.writeJSON(w, http.StatusOK, health, nil)
 	if err != nil {
 		app.errorLog.Println(err)
-		app.serverError(w, err)
+		app.serverError(w, r, err)
 	}
 }
 
@@ -33,7 +37,19 @@ func (app *application) showURLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("Show url id %d", id)))
+	url := models.URL{
+		ID:          id,
+		OriginalURL: "https://www.google.com",
+		ShortURL:    "https://cetu.com/abc123",
+		Clicks:      0,
+		ExpiredTime: time.Now(),
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"url": url}, nil)
+	if err != nil {
+		app.serverError(w, r, err)
+		app.errorLog.Println(err)
+	}
 }
 
 func (app *application) Index(w http.ResponseWriter, r *http.Request) {
