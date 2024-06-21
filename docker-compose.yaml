@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      - CETU_DB=postgresql://cetu:cetu@db/cetu
+    ports:
+      - "4000:4000"
+  db:
+    image: postgres:16-bullseye
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: cetu
+      POSTGRES_USER: cetu
+      POSTGRES_DB: cetu
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgrespv:/var/lib/postgresql/data
+
+volumes:
+  postgrespv:
+    driver: local

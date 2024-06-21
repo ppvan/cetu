@@ -4,7 +4,8 @@
 - [x] Centralize logging
 - [x] Base62 convertion
 - [x] Redirect
-- [x] Database
+- [ ] Update database library
+- [ ] OpenAPI api spec
 - [ ] Form submit
 - [ ] UI
 - [ ] Embeded

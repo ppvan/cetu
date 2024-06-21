@@ -10,15 +10,21 @@ import (
 
 func (app *application) healthCheck(w http.ResponseWriter, r *http.Request) {
 
+	status, err := models.DatabaseStatusCheck(app.db)
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+
 	health := envelope{
 		"status": "available",
 		"system": map[string]any{
 			"environment": app.config.env,
 			"version":     version,
 		},
+		"database": status,
 	}
 
-	err := app.writeJSON(w, http.StatusOK, health, nil)
+	err = app.writeJSON(w, http.StatusOK, health, nil)
 	if err != nil {
 		app.errorLog.Println(err)
 		app.serverError(w, r, err)

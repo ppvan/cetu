@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/ppvan/cetu/internal/models"
 )
 
@@ -33,6 +33,7 @@ type application struct {
 	infoLog  *log.Logger
 	urlModel *models.URLModel
 	config   *config
+	db       *sql.DB
 }
 
 func main() {
@@ -65,6 +66,7 @@ func main() {
 		infoLog:  infoLog,
 		urlModel: urlModel,
 		config:   &config,
+		db:       db,
 	}
 
 	server := http.Server{
@@ -84,7 +86,7 @@ func main() {
 }
 
 func openDB(cfg config) (*sql.DB, error) {
-	db, err := sql.Open("postgres", cfg.db.dsn)
+	db, err := sql.Open("pgx", cfg.db.dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -92,8 +94,6 @@ func openDB(cfg config) (*sql.DB, error) {
 	db.SetMaxOpenConns(cfg.db.maxOpenConns)
 	db.SetMaxIdleConns(cfg.db.maxIdleConns)
 	db.SetConnMaxIdleTime(cfg.db.maxIdleTime)
-
-	fmt.Println(cfg.db.maxIdleTime)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
